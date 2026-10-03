@@ -1,26 +1,359 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Kinetic Atelier — Light Mode (Warm Limestone / Alabaster Bone) */
+  --background: #faf9f6;
+  --on-background: #1a1c1a;
+  --surface: #faf9f6;
+  --surface-dim: #dbdad7;
+  --surface-bright: #faf9f6;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f4f3f0;
+  --surface-container: #efeeeb;
+  --surface-container-high: #e9e8e5;
+  --surface-container-highest: #e3e2df;
+  --on-surface: #1a1c1a;
+  --on-surface-variant: #59413b;
+  --outline: #8d716a;
+  --outline-variant: #e1bfb7;
+  --surface-tint: #ac3311;
+
+  --primary: #a9310f;
+  --primary-container: #cb4926;
+  --on-primary: #ffffff;
+  --on-primary-container: #fffbff;
+  --inverse-primary: #ffb4a1;
+
+  --secondary: #5f5e5d;
+  --secondary-container: #e2dfdd;
+  --on-secondary: #ffffff;
+  --on-secondary-container: #636261;
+
+  --tertiary: #5f5c55;
+  --tertiary-container: #78746d;
+  --on-tertiary: #ffffff;
+  --on-tertiary-container: #fffbff;
+
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+
+  --border-hairline: #e2dfd7;
+  --border-hairline-strong: #c8c5be;
+
+  /* Architectural Motion System — Consistent Timing & Easing */
+  --ease-atelier: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-atelier-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-atelier-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --duration-instant: 120ms;
+  --duration-fast: 200ms;
+  --duration-normal: 340ms;
+  --duration-drawer: 520ms;
+  --duration-slow: 600ms;
+}
+
+.dark {
+  /* Kinetic Atelier — Dark Mode (Carbon Base #121211 & Obsidian Slate #1A1A19) */
+  --background: #121211;
+  --on-background: #f2f1ee;
+  --surface: #121211;
+  --surface-dim: #121211;
+  --surface-bright: #2c2c2a;
+  --surface-container-lowest: #0c0c0b;
+  --surface-container-low: #161615;
+  --surface-container: #1a1a19;
+  --surface-container-high: #222220;
+  --surface-container-highest: #2a2a28;
+  --on-surface: #f2f1ee;
+  --on-surface-variant: #c8c5be;
+  --outline: #736f68;
+  --outline-variant: #2c2c2a;
+  --surface-tint: #ffb4a1;
+
+  --primary: #d9532f;
+  --primary-container: #cb4926;
+  --on-primary: #ffffff;
+  --on-primary-container: #fffbff;
+  --inverse-primary: #a9310f;
+
+  --secondary: #c8c6c4;
+  --secondary-container: #333230;
+  --on-secondary: #1c1c1b;
+  --on-secondary-container: #e5e2e0;
+
+  --tertiary: #cbc6bd;
+  --tertiary-container: #3d3b37;
+  --on-tertiary: #1e1b16;
+  --on-tertiary-container: #fffbff;
+
+  --error: #ffb4ab;
+  --on-error: #690005;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+
+  --border-hairline: #2c2c2a;
+  --border-hairline-strong: #474745;
 }
 
 @theme inline {
+  --font-sans: var(--font-plus-jakarta), sans-serif;
+  --font-body: var(--font-plus-jakarta), sans-serif;
+  --font-headline: var(--font-syne), sans-serif;
+  --font-display: var(--font-syne), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+  --font-code: var(--font-jetbrains-mono), monospace;
+
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-on-background: var(--on-background);
+  --color-surface: var(--surface);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-surface-tint: var(--surface-tint);
+
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary: var(--on-primary);
+  --color-on-primary-container: var(--on-primary-container);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary: var(--on-secondary);
+  --color-on-secondary-container: var(--on-secondary-container);
+
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+
+  --color-error: var(--error);
+  --color-error-container: var(--error-container);
+  --color-on-error: var(--on-error);
+  --color-on-error-container: var(--on-error-container);
+
+  --color-border-hairline: var(--border-hairline);
+  --color-border-hairline-strong: var(--border-hairline-strong);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
+  position: relative;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  color: var(--on-surface);
+  font-family: var(--font-plus-jakarta), sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure interactive elements always show pointer cursor */
+button,
+[role="button"],
+a,
+select,
+input[type="submit"],
+input[type="button"],
+input[type="reset"] {
+  cursor: pointer;
+}
+
+/* Studio precision coordinate grid background */
+.studio-grid {
+  background-image: radial-gradient(var(--border-hairline) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Hairline utilities */
+.hairline-border {
+  border: 1px solid var(--border-hairline);
+}
+
+.hairline-border-b {
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.hairline-border-t {
+  border-top: 1px solid var(--border-hairline);
+}
+
+/* Kinetic Atelier Layout Container: 1440px desktop, 768px tablet, responsive mobile */
+.container-atelier {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container-atelier {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-atelier {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+/* Kinetic Atelier Blueprint Button Grid */
+.btn-blueprint-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: -1px -1px;
+}
+
+/* Precision Studio Viewport Grid Overlay */
+.viewport-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(226, 223, 215, 0.45) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 223, 215, 0.45) 1px, transparent 1px);
+}
+.dark .viewport-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 18px;
+  line-height: 1;
+  display: inline-block;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  vertical-align: middle;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom 3D Viewport Aspect Ratio System (Tailored per viewport) */
+.canvas-viewport-stage {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  contain: paint;
+  /* Mobile: 4:5 ratio tailored for phone touch screens with optimal headroom */
+  aspect-ratio: 4 / 5;
+  min-height: 380px;
+  max-height: 480px;
+}
+
+@media (min-width: 640px) {
+  .canvas-viewport-stage {
+    /* Tablet: 16:10 spacious ratio */
+    aspect-ratio: 16 / 10;
+    min-height: 420px;
+    max-height: 520px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .canvas-viewport-stage {
+    /* Desktop: 21:9 cinematic ultra-wide stage */
+    aspect-ratio: 21 / 9;
+    min-height: 500px;
+    max-height: none;
+  }
+}
+
+/* Bulletproof responsive visibility utilities */
+@media (max-width: 1023px) {
+  .hide-below-lg {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hide-from-lg {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Kinetic Atelier Motion System (Sidebars, Drawers, Dropdowns, Popovers)
+   Consistent variables and easing across all interactive panels.
+   ========================================================================== */
+
+/* Right-Docked Sidebar / Drawer Panel (Smooth Slide In & Out) */
+.drawer-panel-right {
+  transition: transform var(--duration-drawer) var(--ease-atelier),
+              translate var(--duration-drawer) var(--ease-atelier),
+              opacity var(--duration-drawer) var(--ease-atelier);
+  will-change: transform, translate, opacity;
+}
+
+/* Left-Docked Sidebar / Drawer Panel */
+.drawer-panel-left {
+  transition: transform var(--duration-drawer) var(--ease-atelier),
+              opacity var(--duration-drawer) var(--ease-atelier),
+              visibility var(--duration-drawer) var(--ease-atelier);
+  will-change: transform, opacity;
+}
+
+/* Top-Down Dropdown / Accordion Drawer */
+.drawer-panel-top {
+  transition: transform var(--duration-normal) var(--ease-atelier),
+              opacity var(--duration-normal) var(--ease-atelier),
+              max-height var(--duration-drawer) var(--ease-atelier);
+  will-change: transform, opacity, max-height;
+}
+
+/* Bottom Sheet Drawer */
+.drawer-panel-bottom {
+  transition: transform var(--duration-drawer) var(--ease-atelier),
+              opacity var(--duration-drawer) var(--ease-atelier);
+  will-change: transform, opacity;
+}
+
+/* Backdrop Overlay Fade */
+.drawer-backdrop {
+  transition: opacity var(--duration-normal) var(--ease-atelier),
+              backdrop-filter var(--duration-normal) var(--ease-atelier);
+  will-change: opacity, backdrop-filter;
+}
+
+/* Floating Dropdown / Popover Menu */
+.dropdown-panel {
+  transition: transform var(--duration-fast) var(--ease-atelier),
+              opacity var(--duration-fast) var(--ease-atelier);
+  will-change: transform, opacity;
+}
+
+/* Modal Dialog Center Pop */
+.modal-panel {
+  transition: transform var(--duration-normal) var(--ease-atelier),
+              opacity var(--duration-normal) var(--ease-atelier);
+  will-change: transform, opacity;
 }
