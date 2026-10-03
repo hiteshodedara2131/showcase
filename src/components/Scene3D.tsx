@@ -1,27 +1,299 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import React, { useRef, useEffect, useMemo } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   OrbitControls,
-  Float,
   MeshDistortMaterial,
   MeshWobbleMaterial,
   Sphere,
-  TorusKnot,
-  Ring,
   ContactShadows,
   Environment,
+  useGLTF,
 } from "@react-three/drei";
 import * as THREE from "three";
 
-interface SceneProps {
-  currentModel: "torus" | "sphere" | "ring" | "gem";
+export interface SceneProps {
+  currentModel: "dior_jordan" | "vans_oldskool" | "shoe" | "nike_shoe" | "helmet" | "torus" | "sphere" | "ring" | "gem";
   color: string;
   wireframe: boolean;
   roughness: number;
   metalness: number;
   distortion: number;
+  autoRotate?: boolean;
+  rotationSpeed?: number;
+  environmentPreset?: "studio" | "city" | "dawn" | "sunset" | "apartment";
+  cameraPos?: [number, number, number];
+  cameraTarget?: [number, number, number];
+  activeTool?: "orbit" | "pan" | "zoom";
+}
+
+// Cinematic Pedestal Base matching the studio stage
+function StagePedestal({ color = "#e8e7e4" }: { color?: string }) {
+  return (
+    <group position={[0, 0, 0]}>
+      {/* Stone disc */}
+      <mesh position={[0, -0.04, 0]} receiveShadow>
+        <cylinderGeometry args={[1.9, 1.98, 0.08, 64]} />
+        <meshStandardMaterial color={color} roughness={0.85} metalness={0.05} />
+      </mesh>
+      {/* Sub-Pedestal Foundation Ring */}
+      <mesh position={[0, -0.1, 0]} receiveShadow>
+        <cylinderGeometry args={[2.05, 2.12, 0.04, 64]} />
+        <meshStandardMaterial color="#dbdad7" roughness={0.9} metalness={0.02} />
+      </mesh>
+    </group>
+  );
+}
+
+// Air Jordan 1 Low Dior Model
+function DiorJordanModel({
+  wireframe,
+  roughness,
+  metalness,
+}: {
+  wireframe?: boolean;
+  roughness?: number;
+  metalness?: number;
+}) {
+  const { scene } = useGLTF("/models/dior_jordan.glb");
+  const { root, meshes } = useMemo(() => {
+    const clone = scene.clone(true);
+    const meshList: THREE.Mesh[] = [];
+
+    clone.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        if (mesh.material) {
+          mesh.material = (mesh.material as THREE.Material).clone();
+        }
+        meshList.push(mesh);
+      }
+    });
+
+    const box = new THREE.Box3().setFromObject(clone);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = maxDim > 0 ? 2.5 / maxDim : 1;
+
+    clone.scale.setScalar(scale);
+    clone.position.set(-center.x * scale, -box.min.y * scale + 0.01, -center.z * scale);
+    clone.updateMatrixWorld(true);
+
+    return { root: clone, meshes: meshList };
+  }, [scene]);
+
+  useEffect(() => {
+    meshes.forEach((mesh) => {
+      if (mesh.material instanceof THREE.MeshStandardMaterial) {
+        if (wireframe !== undefined) mesh.material.wireframe = wireframe;
+        // Natural leather & rubber: clamp metalness to dielectric range so it never shines like steel
+        mesh.material.metalness = Math.min(metalness ?? 0.0, 0.08);
+        mesh.material.roughness = Math.max(roughness ?? 0.72, 0.55);
+        mesh.material.needsUpdate = true;
+      }
+    });
+  }, [meshes, wireframe, roughness, metalness]);
+
+  return <primitive object={root} />;
+}
+
+// Vans Old Skool Classic Model
+function VansOldskoolModel({
+  wireframe,
+  roughness,
+  metalness,
+}: {
+  wireframe?: boolean;
+  roughness?: number;
+  metalness?: number;
+}) {
+  const { scene } = useGLTF("/models/vans_oldskool.glb");
+  const { root, meshes } = useMemo(() => {
+    const clone = scene.clone(true);
+    const meshList: THREE.Mesh[] = [];
+
+    clone.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        if (mesh.material) {
+          mesh.material = (mesh.material as THREE.Material).clone();
+        }
+        meshList.push(mesh);
+      }
+    });
+
+    const box = new THREE.Box3().setFromObject(clone);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = maxDim > 0 ? 2.6 / maxDim : 1;
+
+    clone.scale.setScalar(scale);
+    clone.position.set(-center.x * scale, -box.min.y * scale + 0.01, -center.z * scale);
+    clone.updateMatrixWorld(true);
+
+    return { root: clone, meshes: meshList };
+  }, [scene]);
+
+  useEffect(() => {
+    meshes.forEach((mesh) => {
+      if (mesh.material instanceof THREE.MeshStandardMaterial) {
+        if (wireframe !== undefined) mesh.material.wireframe = wireframe;
+        // Natural suede, canvas, rubber: dielectric non-metal
+        mesh.material.metalness = Math.min(metalness ?? 0.0, 0.08);
+        mesh.material.roughness = Math.max(roughness ?? 0.75, 0.55);
+        mesh.material.needsUpdate = true;
+      }
+    });
+  }, [meshes, wireframe, roughness, metalness]);
+
+  return <primitive object={root} />;
+}
+
+// Flagship Architectural Shoe Model (Waffle Runner V2)
+function FlagshipShoeModel({
+  color,
+  wireframe,
+  roughness,
+  metalness,
+}: {
+  color: string;
+  wireframe: boolean;
+  roughness: number;
+  metalness: number;
+}) {
+  const { scene } = useGLTF("/models/shoes.glb");
+  const { rootGroup, meshes } = useMemo(() => {
+    const clone = scene.clone(true);
+    const meshesList: THREE.Mesh[] = [];
+
+    clone.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        if (mesh.material) {
+          mesh.material = (mesh.material as THREE.Material).clone();
+        }
+        meshesList.push(mesh);
+      }
+    });
+
+    const levelGroup = new THREE.Group();
+    levelGroup.name = "LevelGroup";
+    levelGroup.add(clone);
+
+    // Cancel the forward tilt present in the raw GLTF nodes so soles sit flat
+    levelGroup.rotation.x = -2 * Math.atan2(0.21306893229484558, 0.9770371913909912);
+    levelGroup.updateMatrixWorld(true);
+
+    const box = new THREE.Box3().setFromObject(levelGroup);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = maxDim > 0 ? 2.6 / maxDim : 1;
+
+    levelGroup.scale.setScalar(scale);
+    // Align X and Z on pedestal center (0,0) and place soles flush on pedestal top at y=0.01
+    levelGroup.position.set(-center.x * scale, -box.min.y * scale + 0.01, -center.z * scale);
+    levelGroup.updateMatrixWorld(true);
+
+    return { rootGroup: levelGroup, meshes: meshesList };
+  }, [scene]);
+
+  useEffect(() => {
+    meshes.forEach((mesh) => {
+      if (mesh.material instanceof THREE.MeshStandardMaterial) {
+        if (
+          mesh.name.includes("Toe_Box") ||
+          mesh.name.includes("Upper") ||
+          mesh.name.includes("Vamp") ||
+          mesh.name.includes("Foxing")
+        ) {
+          mesh.material.color = new THREE.Color(color);
+        }
+        const isEyelet = mesh.name.includes("Eyelet");
+        mesh.material.roughness = isEyelet ? 0.25 : Math.max(roughness, 0.55);
+        mesh.material.metalness = isEyelet ? 0.9 : Math.min(metalness, 0.08);
+        mesh.material.wireframe = wireframe;
+        mesh.material.needsUpdate = true;
+      }
+    });
+  }, [meshes, color, roughness, metalness, wireframe]);
+
+  return (
+    <group rotation={[0, -Math.PI / 4, 0]}>
+      <primitive object={rootGroup} />
+    </group>
+  );
+}
+
+// Auto-aligning GLB model component for Air Sneaker, Helmet, etc.
+function AutoAlignModel({
+  url,
+  color,
+  wireframe,
+  roughness,
+  metalness,
+  targetSize = 2.4,
+}: {
+  url: string;
+  color?: string;
+  wireframe?: boolean;
+  roughness?: number;
+  metalness?: number;
+  targetSize?: number;
+}) {
+  const { scene } = useGLTF(url);
+  const { root, meshes } = useMemo(() => {
+    const clone = scene.clone(true);
+    const meshList: THREE.Mesh[] = [];
+
+    clone.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        if (mesh.material) {
+          mesh.material = (mesh.material as THREE.Material).clone();
+        }
+        meshList.push(mesh);
+      }
+    });
+
+    const box = new THREE.Box3().setFromObject(clone);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = maxDim > 0 ? targetSize / maxDim : 1;
+
+    clone.scale.setScalar(scale);
+    clone.position.set(-center.x * scale, -box.min.y * scale + 0.01, -center.z * scale);
+    clone.updateMatrixWorld(true);
+
+    return { root: clone, meshes: meshList };
+  }, [scene, targetSize]);
+
+  useEffect(() => {
+    if (meshes.length > 0) {
+      meshes.forEach((mesh) => {
+        if (mesh.material instanceof THREE.MeshStandardMaterial) {
+          if (wireframe !== undefined) mesh.material.wireframe = wireframe;
+          if (roughness !== undefined) mesh.material.roughness = Math.max(roughness, 0.55);
+          if (metalness !== undefined) mesh.material.metalness = Math.min(metalness, 0.08);
+          mesh.material.needsUpdate = true;
+        }
+      });
+    }
+  }, [meshes, wireframe, roughness, metalness]);
+
+  return <primitive object={root} />;
 }
 
 function ShowcaseModel({
@@ -31,48 +303,106 @@ function ShowcaseModel({
   roughness,
   metalness,
   distortion,
+  autoRotate = true,
+  rotationSpeed = 1,
 }: SceneProps) {
-  const meshRef = useRef<THREE.Mesh>(null!);
+  const groupRef = useRef<THREE.Group>(null!);
 
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.4;
-      meshRef.current.rotation.x += delta * 0.15;
+  useFrame((_, delta) => {
+    if (groupRef.current && autoRotate) {
+      groupRef.current.rotation.y += delta * 0.35 * rotationSpeed;
     }
   });
 
   return (
-    <Float speed={2.5} rotationIntensity={1.2} floatIntensity={1.5}>
+    <group ref={groupRef}>
+      {currentModel === "dior_jordan" && (
+        <React.Suspense fallback={null}>
+          <DiorJordanModel
+            wireframe={wireframe}
+            roughness={roughness}
+            metalness={metalness}
+          />
+        </React.Suspense>
+      )}
+
+      {currentModel === "vans_oldskool" && (
+        <React.Suspense fallback={null}>
+          <VansOldskoolModel
+            wireframe={wireframe}
+            roughness={roughness}
+            metalness={metalness}
+          />
+        </React.Suspense>
+      )}
+
+      {currentModel === "shoe" && (
+        <React.Suspense fallback={null}>
+          <FlagshipShoeModel
+            color={color}
+            wireframe={wireframe}
+            roughness={roughness}
+            metalness={metalness}
+          />
+        </React.Suspense>
+      )}
+
+      {currentModel === "nike_shoe" && (
+        <React.Suspense fallback={null}>
+          <AutoAlignModel
+            url="/models/nike_shoe.glb"
+            color={color}
+            wireframe={wireframe}
+            roughness={roughness}
+            metalness={metalness}
+            targetSize={2.4}
+          />
+        </React.Suspense>
+      )}
+
+      {currentModel === "helmet" && (
+        <React.Suspense fallback={null}>
+          <AutoAlignModel
+            url="/models/helmet.glb"
+            color={color}
+            wireframe={wireframe}
+            roughness={roughness}
+            metalness={metalness}
+            targetSize={2.1}
+          />
+        </React.Suspense>
+      )}
+
       {currentModel === "torus" && (
-        <mesh ref={meshRef} scale={1.2} castShadow receiveShadow>
-          <torusKnotGeometry args={[1, 0.35, 128, 32]} />
+        <mesh position={[0, 0.7, 0]} scale={0.78} castShadow receiveShadow>
+          <torusKnotGeometry args={[0.75, 0.25, 128, 32]} />
           <MeshDistortMaterial
             color={color}
             wireframe={wireframe}
             roughness={roughness}
             metalness={metalness}
-            distort={distortion}
+            distort={distortion * 0.8}
             speed={2}
           />
         </mesh>
       )}
 
       {currentModel === "sphere" && (
-        <Sphere ref={meshRef} args={[1.3, 64, 64]} castShadow receiveShadow>
+        <Sphere position={[0, 0.85, 0]} args={[0.85, 64, 64]} castShadow receiveShadow>
           <MeshDistortMaterial
             color={color}
             wireframe={wireframe}
             roughness={roughness}
             metalness={metalness}
-            distort={distortion * 1.5}
-            speed={3}
+            distort={distortion * 1.2}
+            speed={2.5}
           />
         </Sphere>
       )}
 
       {currentModel === "ring" && (
-        <mesh ref={meshRef} scale={1.4} castShadow receiveShadow>
-          <torusGeometry args={[1.1, 0.22, 32, 100]} />
+        <mesh position={[0, 0.65, 0]} scale={0.82} castShadow receiveShadow>
+          <torusGeometry args={[0.82, 0.18, 32, 100]} />
           <meshStandardMaterial
             color={color}
             wireframe={wireframe}
@@ -83,52 +413,121 @@ function ShowcaseModel({
       )}
 
       {currentModel === "gem" && (
-        <mesh ref={meshRef} scale={1.3} castShadow receiveShadow>
-          <octahedronGeometry args={[1.3, 0]} />
+        <mesh position={[0, 0.75, 0]} scale={0.82} castShadow receiveShadow>
+          <octahedronGeometry args={[0.95, 0]} />
           <MeshWobbleMaterial
             color={color}
             wireframe={wireframe}
             roughness={roughness}
             metalness={metalness}
-            factor={distortion * 0.5}
+            factor={distortion * 0.4}
             speed={1.5}
           />
         </mesh>
       )}
-    </Float>
+    </group>
+  );
+}
+
+// Camera controller with smooth target and position synchronization
+function CameraSync({
+  cameraPos,
+  cameraTarget,
+  activeTool = "orbit",
+}: {
+  cameraPos?: [number, number, number];
+  cameraTarget?: [number, number, number];
+  activeTool?: "orbit" | "pan" | "zoom";
+}) {
+  const { camera } = useThree();
+  const controlsRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (cameraPos) {
+      camera.position.set(...cameraPos);
+    }
+    if (controlsRef.current && cameraTarget) {
+      controlsRef.current.target.set(...cameraTarget);
+      controlsRef.current.update();
+    }
+  }, [camera, cameraPos, cameraTarget]);
+
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      makeDefault
+      target={cameraTarget || [0, 0.45, 0]}
+      enableRotate={activeTool === "orbit"}
+      enablePan={activeTool === "pan"}
+      enableZoom={activeTool === "zoom" || activeTool === "orbit"}
+      minDistance={1.6}
+      maxDistance={7.5}
+      maxPolarAngle={Math.PI / 2 + 0.05}
+      dampingFactor={0.08}
+    />
   );
 }
 
 export default function Scene3D(props: SceneProps) {
+  const envPreset = props.environmentPreset || "studio";
+  const defaultCamPos: [number, number, number] = props.cameraPos || [2.2, 1.2, 2.6];
+  const defaultCamTarget: [number, number, number] = props.cameraTarget || [0, 0.45, 0];
+
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing select-none">
       <Canvas
-        camera={{ position: [0, 0, 4.8], fov: 45 }}
-        gl={{ antialias: true, alpha: true }}
+        dpr={[1, 1.5]}
+        camera={{ position: defaultCamPos, fov: 38 }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.05,
+        }}
       >
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[5, 8, 5]} intensity={1.5} castShadow />
-        <pointLight position={[-5, -3, -4]} intensity={1} color="#3b82f6" />
-        <pointLight position={[5, -2, 2]} intensity={1.2} color="#ec4899" />
+        <CameraSync
+          cameraPos={props.cameraPos}
+          cameraTarget={props.cameraTarget}
+          activeTool={props.activeTool}
+        />
 
+        {/* Ambient & Natural Studio Lighting Rig */}
+        <hemisphereLight args={["#ffffff", "#deded8", 0.75]} />
+        <directionalLight
+          position={[4, 5.5, 4]}
+          intensity={1.3}
+          color="#fffdfa"
+          castShadow
+          shadow-mapSize={[512, 512]}
+          shadow-bias={-0.0001}
+        />
+        <directionalLight position={[-4, 3, -2]} intensity={0.45} color="#f0f4f8" />
+        <directionalLight position={[0, 4, -4]} intensity={0.5} color="#ffffff" />
+        <pointLight position={[0, -0.2, 1.8]} intensity={0.15} color="#fff6ed" />
+
+        {/* Illuminated Stone Pedestal Disc */}
+        <StagePedestal />
+
+        {/* 3D Model Specimen */}
         <ShowcaseModel {...props} />
 
+        {/* Contact Shadow directly on the pedestal floor */}
         <ContactShadows
-          position={[0, -1.8, 0]}
-          opacity={0.65}
-          scale={10}
-          blur={2.4}
-          far={4}
+          position={[0, -0.05, 0]}
+          opacity={0.55}
+          scale={5.5}
+          blur={2.0}
+          far={2.5}
         />
-        <Environment preset="city" />
-        <OrbitControls
-          enableZoom={true}
-          enablePan={false}
-          minDistance={2.5}
-          maxDistance={8}
-          autoRotate={false}
-        />
+
+        {/* HDRI Environment Reflection Map with Soft Ambient Intensity */}
+        <Environment preset={envPreset} environmentIntensity={0.6} />
       </Canvas>
     </div>
   );
 }
+
+useGLTF.preload("/models/dior_jordan.glb");
+useGLTF.preload("/models/vans_oldskool.glb");
+useGLTF.preload("/models/shoes.glb");
