@@ -1,26 +1,42 @@
 import type { Metadata } from "next";
-import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const syne = Syne({
+// Variable fonts (Syne, Plus Jakarta Sans, JetBrains Mono) are loaded via
+// `next/font/local` because `next/font/google` with multiple queries fails
+// under Next.js 16 / Turbopack (the `NextFontGoogleFontFileReplacer` cannot
+// resolve `@vercel/turbopack-next/internal/font/google/font` for a layout
+// that imports more than one Google font). Self-hosting the woff2 files is
+// also better for LCP and removes the build-time network dependency.
+// The CSS variable names are unchanged so the rest of the codebase
+// (Tailwind tokens in `src/app/globals.css`, `font-sans`/`font-mono`/etc.)
+// keeps working without any further changes.
+
+const syne = localFont({
+  src: "../../public/fonts/syne.latin.woff2",
   variable: "--font-syne",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
   display: "swap",
+  weight: "500 800",
+  style: "normal",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const plusJakartaSans = localFont({
+  src: "../../public/fonts/plus-jakarta.latin.woff2",
   variable: "--font-plus-jakarta",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
+  weight: "400 700",
+  style: "normal",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const jetbrainsMono = localFont({
+  src: "../../public/fonts/jetbrains-mono.latin.woff2",
   variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
   display: "swap",
+  weight: "400 600",
+  style: "normal",
+  fallback: ["ui-monospace", "SFMono-Regular", "monospace"],
 });
 
 export const metadata: Metadata = {
