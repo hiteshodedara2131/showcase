@@ -40,7 +40,9 @@ const jetbrainsMono = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://showcase-3d.com"
+  ),
   title: {
     default: "Showcase — 3D Web Studio & Kinetic Atelier",
     template: "%s | Showcase 3D Web Studio",

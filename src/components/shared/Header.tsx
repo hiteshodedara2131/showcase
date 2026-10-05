@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "/#stage-section", label: "3D Viewer" },
+  { href: "/#stage", label: "3D Viewer" },
   { href: "/editor", label: "3D Studio" },
   { href: "/tools/3d-model-viewer", label: "Tools" },
   { href: "/blog", label: "Articles" },

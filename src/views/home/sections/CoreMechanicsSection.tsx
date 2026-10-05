@@ -38,15 +38,18 @@ const CAPABILITIES = [
 
 export const CoreMechanicsSection: React.FC = () => {
   return (
-    <section className="container-atelier py-14 sm:py-16 md:py-20 border-t border-outline-variant/30">
-      <div className="mb-8 sm:mb-12 max-w-2xl">
+    <section
+      id="capabilities"
+      className="container-atelier py-12 sm:py-16 md:py-20 border-t border-outline-variant/30 scroll-mt-20"
+    >
+      <div className="mb-8 sm:mb-10 max-w-2xl">
         <span className="font-mono text-xs text-primary uppercase tracking-widest block mb-2">
           Engine Capabilities
         </span>
         <h2 className="font-headline text-2xl sm:text-3xl lg:text-4xl text-on-surface font-bold tracking-tight">
-          3D Viewing & Editing Architecture
+          3D Viewing &amp; Editing Architecture
         </h2>
-        <p className="text-xs sm:text-sm text-on-surface-variant mt-2 leading-relaxed">
+        <p className="text-sm sm:text-base text-on-surface-variant mt-3 leading-relaxed">
           Engineered for high performance, sub-millimeter precision, and zero installation friction in modern browsers.
         </p>
       </div>

@@ -43,7 +43,7 @@ export const Footer: React.FC = () => {
             </span>
             <ul className="space-y-2">
               <li>
-                <Link href="/#stage-section" className="hover:text-primary transition-colors">
+                <Link href="/#stage" className="hover:text-primary transition-colors">
                   Live 3D Viewport Stage
                 </Link>
               </li>

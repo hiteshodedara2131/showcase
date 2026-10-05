@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { ArrowUpRight, Box, Sparkles, Layers } from "lucide-react";
 
@@ -55,9 +54,9 @@ export const CuratedWorkSection: React.FC = () => {
   return (
     <section
       id="work"
-      className="container-atelier py-14 sm:py-16 md:py-20 border-t border-outline-variant/30"
+      className="container-atelier py-12 sm:py-16 md:py-20 border-t border-outline-variant/30 scroll-mt-20"
     >
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-10 gap-4">
         <div>
           <span className="font-mono text-xs text-primary uppercase tracking-widest block mb-2">
             Studio Presets
@@ -66,7 +65,7 @@ export const CuratedWorkSection: React.FC = () => {
             Ready-Made 3D Staging Scenes
           </h2>
         </div>
-        <p className="text-xs sm:text-sm text-on-surface-variant max-w-md leading-relaxed">
+        <p className="text-sm sm:text-base text-on-surface-variant max-w-md leading-relaxed">
           Pre-calibrated studio rigs engineered for photographic realism,
           real-time material customization, and high-resolution rendering.
         </p>

@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useRef, useMemo, useEffect, useState } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { OrbitControls, useGLTF, ContactShadows, Environment, Float } from "@react-three/drei";
+import type { ComponentRef } from "react";
 import * as THREE from "three";
+import { levelAndCenterShoe, autoCenterAndScale, disposeObject3D } from "@/lib/three/levelShoe";
 
 export interface PartConfig {
   color: string;
@@ -43,10 +45,8 @@ export interface EditorSceneProps {
   wireframeGlobal: boolean;
   keyLightIntensity: number;
   colorTempKelvin: number;
-  shadowSoftness?: number;
   turntableSpin: boolean;
   activeTool: "orbit" | "pan" | "zoom";
-  onFpsUpdate?: (fps: number) => void;
   canvasRef?: React.MutableRefObject<HTMLCanvasElement | null>;
 }
 
@@ -80,7 +80,6 @@ function kelvinToRGB(kelvin: number): THREE.Color {
 
 function ShoeModel({
   url,
-  selectedPartName,
   onSelectPart,
   partsState,
   wireframeGlobal,
@@ -96,7 +95,8 @@ function ShoeModel({
   const groupRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF(url);
 
-  // Clone scene & construct the leveled, centered hierarchy
+  // Clone scene & extract meshes; defer the leveling pass to a ref so we can
+  // re-run it when the mount point exists.
   const { rootGroup, meshes } = useMemo(() => {
     const clone = scene.clone(true);
     const meshList: THREE.Mesh[] = [];
@@ -115,27 +115,39 @@ function ShoeModel({
     const levelGroup = new THREE.Group();
     levelGroup.name = "LevelGroup";
     levelGroup.add(clone);
-
-    // Cancel the forward pitch angle only for Waffle Runner GLTF where it is tilted in root nodes
-    if (url.includes("shoes.glb")) {
-      levelGroup.rotation.x = -2 * Math.atan2(0.21306893229484558, 0.9770371913909912);
-    }
     levelGroup.updateMatrixWorld(true);
-
-    const box = new THREE.Box3().setFromObject(levelGroup);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = maxDim > 0 ? 2.7 / maxDim : 1;
-
-    levelGroup.scale.setScalar(scale);
-    // Align X and Z directly onto the center of the pedestal (0,0)
-    // and place soles flush onto the pedestal top at y = 0 (+0.01 margin against z-fighting)
-    levelGroup.position.set(-center.x * scale, -box.min.y * scale + 0.01, -center.z * scale);
-    levelGroup.updateMatrixWorld(true);
-
     return { rootGroup: levelGroup, meshes: meshList };
-  }, [scene, url]);
+  }, [scene]);
+
+  // Apply pitch compensation + auto-center via shared util
+  useEffect(() => {
+    if (groupRef.current) {
+      while (groupRef.current.children.length > 0) {
+        groupRef.current.remove(groupRef.current.children[0]);
+      }
+      const target = url.includes("shoes.glb")
+        ? (() => {
+            const g = new THREE.Group();
+            g.add(rootGroup);
+            levelAndCenterShoe(g, rootGroup, 2.7);
+            return g.children[0] as THREE.Group;
+          })()
+        : (() => {
+            const g = new THREE.Group();
+            g.add(rootGroup);
+            autoCenterAndScale(g, rootGroup, 2.7);
+            return g.children[0] as THREE.Group;
+          })();
+      groupRef.current.add(target);
+    }
+  }, [rootGroup, url]);
+
+  // Dispose on unmount
+  useEffect(() => {
+    return () => {
+      disposeObject3D(rootGroup);
+    };
+  }, [rootGroup]);
 
   // Apply real-time material parameters & visibility to meshes
   useEffect(() => {
@@ -242,13 +254,17 @@ function CameraController({
   activeTool: "orbit" | "pan" | "zoom";
 }) {
   const { camera } = useThree();
-  const controlsRef = useRef<any>(null);
+  type ControlsRef = ComponentRef<typeof OrbitControls>;
+  const controlsRef = useRef<ControlsRef | null>(null);
 
   useEffect(() => {
     camera.position.set(...cameraAngle.position);
-    if (controlsRef.current) {
-      controlsRef.current.target.set(...cameraAngle.target);
-      controlsRef.current.update();
+    const c = controlsRef.current as
+      | { target: { set: (x: number, y: number, z: number) => void }; update: () => void }
+      | null;
+    if (c) {
+      c.target.set(...cameraAngle.target);
+      c.update();
     }
   }, [camera, cameraAngle]);
 
@@ -283,13 +299,12 @@ export default function EditorScene3D({
 }: EditorSceneProps) {
   const modelUrl = customGlbUrl || "/models/shoes.glb";
   const lightColor = useMemo(() => kelvinToRGB(colorTempKelvin), [colorTempKelvin]);
-  const [hasError, setHasError] = useState(false);
 
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing select-none">
       <Canvas
         ref={canvasRef}
-        dpr={[1, 1.5]}
+        dpr={[1, 2]}
         gl={{
           antialias: true,
           alpha: true,
@@ -321,18 +336,14 @@ export default function EditorScene3D({
 
         {/* Main 3D Model with Graceful Fallback */}
         <React.Suspense fallback={<FallbackSneakerProcedural wireframeGlobal={wireframeGlobal} />}>
-          {!hasError ? (
-            <ShoeModel
-              url={modelUrl}
-              selectedPartName={selectedPartName}
-              onSelectPart={onSelectPart}
-              partsState={partsState}
-              wireframeGlobal={wireframeGlobal}
-              turntableSpin={turntableSpin}
-            />
-          ) : (
-            <FallbackSneakerProcedural wireframeGlobal={wireframeGlobal} />
-          )}
+          <ShoeModel
+            url={modelUrl}
+            selectedPartName={selectedPartName}
+            onSelectPart={onSelectPart}
+            partsState={partsState}
+            wireframeGlobal={wireframeGlobal}
+            turntableSpin={turntableSpin}
+          />
         </React.Suspense>
 
         {/* Realistic Contact Shadow on Pedestal */}

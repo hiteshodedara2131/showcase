@@ -1,50 +1,48 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useSyncExternalStore, useCallback } from "react";
 import { Sun, Moon } from "lucide-react";
 
+const STORAGE_KEY = "showcase-theme";
+
+/**
+ * useSyncExternalStore is the React 19-approved way to read browser-only
+ * state (localStorage / matchMedia) on first render without an effect —
+ * it avoids the "setState in effect" anti-pattern and the hydration
+ * cascade that the legacy `useState + useEffect(setMounted)` pair caused.
+ */
+function subscribe(callback: () => void): () => void {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
+
+function getServerSnapshot(): boolean {
+  return true; // Default to dark on the server
+}
+
+function getClientSnapshot(): boolean {
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  if (stored) return stored === "dark";
+  if (document.documentElement.classList.contains("dark")) return true;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
 export const ThemeToggle: React.FC<{ className?: string }> = ({ className = "" }) => {
-  const [isDark, setIsDark] = useState<boolean>(true);
-  const [mounted, setMounted] = useState<boolean>(false);
+  const isDark = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 
-  useEffect(() => {
-    setMounted(true);
-    const root = document.documentElement;
-    const stored = localStorage.getItem("showcase-theme");
-    const initialDark = stored
-      ? stored === "dark"
-      : root.classList.contains("dark") ||
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    setIsDark(initialDark);
-    if (initialDark) {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, []);
-
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     const root = document.documentElement;
     const nextDark = !isDark;
-    setIsDark(nextDark);
     if (nextDark) {
       root.classList.add("dark");
-      localStorage.setItem("showcase-theme", "dark");
+      window.localStorage.setItem(STORAGE_KEY, "dark");
     } else {
       root.classList.remove("dark");
-      localStorage.setItem("showcase-theme", "light");
+      window.localStorage.setItem(STORAGE_KEY, "light");
     }
-  };
-
-  if (!mounted) {
-    return (
-      <div
-        className={`w-9 h-9 rounded-sm hairline-border bg-surface-container ${className}`}
-        aria-hidden="true"
-      />
-    );
-  }
+    // Notify any other tabs / listeners
+    window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
+  }, [isDark]);
 
   return (
     <button

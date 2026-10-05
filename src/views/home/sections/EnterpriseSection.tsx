@@ -5,8 +5,8 @@ import { Zap, ShieldCheck, Activity, ArrowUpRight } from "lucide-react";
 export const EnterpriseSection: React.FC = () => {
   return (
     <section
-      id="about"
-      className="container-atelier py-14 sm:py-16 md:py-20 border-t border-outline-variant/30"
+      id="engine"
+      className="container-atelier py-12 sm:py-16 md:py-20 border-t border-outline-variant/30 scroll-mt-20"
     >
       <div className="bg-surface-container-low rounded-sm border border-outline-variant/40 p-6 sm:p-10 md:p-12 lg:p-14 relative overflow-hidden">
         {/* Subtle radial corner glow */}

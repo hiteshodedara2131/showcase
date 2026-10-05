@@ -11,7 +11,9 @@ import {
   Environment,
   useGLTF,
 } from "@react-three/drei";
+import type { ComponentRef } from "react";
 import * as THREE from "three";
+import { levelAndCenterShoe, autoCenterAndScale, disposeObject3D } from "@/lib/three/levelShoe";
 
 export interface SceneProps {
   currentModel: "dior_jordan" | "vans_oldskool" | "shoe" | "nike_shoe" | "helmet" | "torus" | "sphere" | "ring" | "gem";
@@ -57,6 +59,7 @@ function DiorJordanModel({
   metalness?: number;
 }) {
   const { scene } = useGLTF("/models/dior_jordan.glb");
+  const groupRef = useRef<THREE.Group>(null!);
   const { root, meshes } = useMemo(() => {
     const clone = scene.clone(true);
     const meshList: THREE.Mesh[] = [];
@@ -73,18 +76,14 @@ function DiorJordanModel({
       }
     });
 
-    const box = new THREE.Box3().setFromObject(clone);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = maxDim > 0 ? 2.5 / maxDim : 1;
-
-    clone.scale.setScalar(scale);
-    clone.position.set(-center.x * scale, -box.min.y * scale + 0.01, -center.z * scale);
-    clone.updateMatrixWorld(true);
-
     return { root: clone, meshes: meshList };
   }, [scene]);
+
+  useEffect(() => {
+    if (groupRef.current) {
+      autoCenterAndScale(groupRef.current, root, 2.5);
+    }
+  }, [root]);
 
   useEffect(() => {
     meshes.forEach((mesh) => {
@@ -98,7 +97,11 @@ function DiorJordanModel({
     });
   }, [meshes, wireframe, roughness, metalness]);
 
-  return <primitive object={root} />;
+  useEffect(() => {
+    return () => disposeObject3D(root);
+  }, [root]);
+
+  return <group ref={groupRef} />;
 }
 
 // Vans Old Skool Classic Model
@@ -112,6 +115,7 @@ function VansOldskoolModel({
   metalness?: number;
 }) {
   const { scene } = useGLTF("/models/vans_oldskool.glb");
+  const groupRef = useRef<THREE.Group>(null!);
   const { root, meshes } = useMemo(() => {
     const clone = scene.clone(true);
     const meshList: THREE.Mesh[] = [];
@@ -128,18 +132,14 @@ function VansOldskoolModel({
       }
     });
 
-    const box = new THREE.Box3().setFromObject(clone);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = maxDim > 0 ? 2.6 / maxDim : 1;
-
-    clone.scale.setScalar(scale);
-    clone.position.set(-center.x * scale, -box.min.y * scale + 0.01, -center.z * scale);
-    clone.updateMatrixWorld(true);
-
     return { root: clone, meshes: meshList };
   }, [scene]);
+
+  useEffect(() => {
+    if (groupRef.current) {
+      autoCenterAndScale(groupRef.current, root, 2.6);
+    }
+  }, [root]);
 
   useEffect(() => {
     meshes.forEach((mesh) => {
@@ -153,7 +153,11 @@ function VansOldskoolModel({
     });
   }, [meshes, wireframe, roughness, metalness]);
 
-  return <primitive object={root} />;
+  useEffect(() => {
+    return () => disposeObject3D(root);
+  }, [root]);
+
+  return <group ref={groupRef} />;
 }
 
 // Flagship Architectural Shoe Model (Waffle Runner V2)
@@ -169,6 +173,7 @@ function FlagshipShoeModel({
   metalness: number;
 }) {
   const { scene } = useGLTF("/models/shoes.glb");
+  const groupRef = useRef<THREE.Group>(null!);
   const { rootGroup, meshes } = useMemo(() => {
     const clone = scene.clone(true);
     const meshesList: THREE.Mesh[] = [];
@@ -188,24 +193,24 @@ function FlagshipShoeModel({
     const levelGroup = new THREE.Group();
     levelGroup.name = "LevelGroup";
     levelGroup.add(clone);
-
-    // Cancel the forward tilt present in the raw GLTF nodes so soles sit flat
-    levelGroup.rotation.x = -2 * Math.atan2(0.21306893229484558, 0.9770371913909912);
     levelGroup.updateMatrixWorld(true);
-
-    const box = new THREE.Box3().setFromObject(levelGroup);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = maxDim > 0 ? 2.6 / maxDim : 1;
-
-    levelGroup.scale.setScalar(scale);
-    // Align X and Z on pedestal center (0,0) and place soles flush on pedestal top at y=0.01
-    levelGroup.position.set(-center.x * scale, -box.min.y * scale + 0.01, -center.z * scale);
-    levelGroup.updateMatrixWorld(true);
-
     return { rootGroup: levelGroup, meshes: meshesList };
   }, [scene]);
+
+  useEffect(() => {
+    // Apply pitch compensation + auto-center via shared util
+    const tempGroup = new THREE.Group();
+    tempGroup.add(rootGroup);
+    levelAndCenterShoe(tempGroup, rootGroup, 2.6);
+    const finalGroup = tempGroup.children[0] as THREE.Group;
+    // Re-parent for the JSX render
+    if (groupRef.current) {
+      while (groupRef.current.children.length > 0) {
+        groupRef.current.remove(groupRef.current.children[0]);
+      }
+      groupRef.current.add(finalGroup);
+    }
+  }, [rootGroup]);
 
   useEffect(() => {
     meshes.forEach((mesh) => {
@@ -227,17 +232,21 @@ function FlagshipShoeModel({
     });
   }, [meshes, color, roughness, metalness, wireframe]);
 
+  // Dispose on unmount
+  useEffect(() => {
+    return () => {
+      disposeObject3D(rootGroup);
+    };
+  }, [rootGroup]);
+
   return (
-    <group rotation={[0, -Math.PI / 4, 0]}>
-      <primitive object={rootGroup} />
-    </group>
+    <group ref={groupRef} rotation={[0, -Math.PI / 4, 0]} />
   );
 }
 
 // Auto-aligning GLB model component for Air Sneaker, Helmet, etc.
 function AutoAlignModel({
   url,
-  color,
   wireframe,
   roughness,
   metalness,
@@ -251,6 +260,7 @@ function AutoAlignModel({
   targetSize?: number;
 }) {
   const { scene } = useGLTF(url);
+  const groupRef = useRef<THREE.Group>(null!);
   const { root, meshes } = useMemo(() => {
     const clone = scene.clone(true);
     const meshList: THREE.Mesh[] = [];
@@ -267,18 +277,14 @@ function AutoAlignModel({
       }
     });
 
-    const box = new THREE.Box3().setFromObject(clone);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = maxDim > 0 ? targetSize / maxDim : 1;
-
-    clone.scale.setScalar(scale);
-    clone.position.set(-center.x * scale, -box.min.y * scale + 0.01, -center.z * scale);
-    clone.updateMatrixWorld(true);
-
     return { root: clone, meshes: meshList };
-  }, [scene, targetSize]);
+  }, [scene]);
+
+  useEffect(() => {
+    if (groupRef.current) {
+      autoCenterAndScale(groupRef.current, root, targetSize);
+    }
+  }, [root, targetSize]);
 
   useEffect(() => {
     if (meshes.length > 0) {
@@ -293,7 +299,11 @@ function AutoAlignModel({
     }
   }, [meshes, wireframe, roughness, metalness]);
 
-  return <primitive object={root} />;
+  useEffect(() => {
+    return () => disposeObject3D(root);
+  }, [root]);
+
+  return <group ref={groupRef} />;
 }
 
 function ShowcaseModel({
@@ -440,7 +450,10 @@ function CameraSync({
   activeTool?: "orbit" | "pan" | "zoom";
 }) {
   const { camera } = useThree();
-  const controlsRef = useRef<any>(null);
+  // Drei's OrbitControls ref resolves to its imperative handle (target/update).
+  // We use the component's own ref type to stay accurate.
+  type ControlsRef = ComponentRef<typeof OrbitControls>;
+  const controlsRef = useRef<ControlsRef | null>(null);
 
   useEffect(() => {
     if (cameraPos) {
@@ -471,7 +484,9 @@ function CameraSync({
 export default function Scene3D(props: SceneProps) {
   const envPreset = props.environmentPreset || "studio";
   const defaultCamPos: [number, number, number] = props.cameraPos || [2.2, 1.2, 2.6];
-  const defaultCamTarget: [number, number, number] = props.cameraTarget || [0, 0.45, 0];
+  // defaultCamTarget is exposed for future use; intentionally retained.
+  const _defaultCamTarget: [number, number, number] = props.cameraTarget || [0, 0.45, 0];
+  void _defaultCamTarget;
 
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing select-none">

@@ -357,3 +357,23 @@ input[type="reset"] {
               opacity var(--duration-normal) var(--ease-atelier);
   will-change: transform, opacity;
 }
+
+/* Reduced-motion: respect user OS preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .drawer-panel-right,
+  .drawer-panel-left,
+  .drawer-panel-top,
+  .drawer-panel-bottom,
+  .dropdown-panel,
+  .modal-panel {
+    transition-duration: 0ms !important;
+  }
+}

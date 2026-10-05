@@ -7,7 +7,6 @@ import {
   RotateCw,
   SlidersHorizontal,
   X,
-  Layers,
   ArrowRight,
   Maximize2,
   Sparkles,
@@ -81,7 +80,7 @@ export const ModelStageSection: React.FC = () => {
   const [wireframe, setWireframe] = useState(false);
   const [roughness, setRoughness] = useState(0.72);
   const [metalness, setMetalness] = useState(0.0);
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [autoRotate] = useState(true);
   const [rotationSpeed] = useState(1);
 
   // Environment & Camera State
@@ -93,7 +92,10 @@ export const ModelStageSection: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <section id="stage-section" className="container-atelier py-12 sm:py-16 md:py-20 border-t border-outline-variant/30 relative max-w-full overflow-hidden">
+    <section
+      id="stage"
+      className="container-atelier py-12 sm:py-16 md:py-20 border-t border-outline-variant/30 relative max-w-full overflow-hidden scroll-mt-20"
+    >
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-8 gap-4">
         <div>
@@ -104,10 +106,10 @@ export const ModelStageSection: React.FC = () => {
             </span>
           </div>
           <h2 className="font-headline text-2xl sm:text-3xl lg:text-4xl text-on-surface font-bold tracking-tight">
-            Interactive Specimen Viewer & Shader Lab
+            Interactive Specimen Viewer &amp; Shader Lab
           </h2>
         </div>
-        <p className="text-xs sm:text-sm text-on-surface-variant max-w-md leading-relaxed">
+        <p className="text-sm sm:text-base text-on-surface-variant max-w-md leading-relaxed">
           Full 360° orbit mechanics, calibrated HDRI studio lighting, and organic PBR material shaders with natural leather, canvas, and rubber response.
         </p>
       </div>

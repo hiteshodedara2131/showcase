@@ -1,12 +1,12 @@
 import React from "react";
 import { Button } from "@/components/ui/Button";
-import { ArrowRight, CloudUpload } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export const ContactCtaSection: React.FC = () => {
   return (
     <section
-      id="contact"
-      className="container-atelier py-16 sm:py-20 md:py-24 text-center relative border-t border-outline-variant/30"
+      id="start"
+      className="container-atelier py-12 sm:py-16 md:py-20 text-center relative border-t border-outline-variant/30 scroll-mt-20"
     >
       <div className="max-w-2xl mx-auto flex flex-col items-center gap-5 sm:gap-6">
         <span className="w-8 h-0.5 bg-primary" />
@@ -29,7 +29,7 @@ export const ContactCtaSection: React.FC = () => {
           </Button>
 
           <Button
-            href="#stage-section"
+            href="#stage"
             variant="secondary"
             size="md"
             className="w-full sm:w-auto justify-center"

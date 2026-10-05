@@ -10,8 +10,6 @@ import {
   Calendar,
   ArrowLeft,
   ArrowRight,
-  Share2,
-  Sparkles,
   ChevronRight,
   CheckCircle,
 } from "lucide-react";
@@ -93,7 +91,7 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
       />
       <Header />
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Article Header & Breadcrumbs */}
         <section className="py-10 sm:py-14 border-b border-border-hairline bg-surface-container-low/40">
           <div className="container-atelier max-w-4xl">

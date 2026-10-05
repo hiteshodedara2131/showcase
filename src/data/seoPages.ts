@@ -89,7 +89,7 @@ export const SEO_PAGES: SeoPageData[] = [
       },
     ],
     ctaText: "Launch 3D Model Viewer",
-    ctaUrl: "/#stage-section",
+    ctaUrl: "/#stage",
   },
   {
     slug: "shoe-3d-customizer",
@@ -265,7 +265,7 @@ export const SEO_PAGES: SeoPageData[] = [
       },
     ],
     ctaText: "Test E-Commerce Stage",
-    ctaUrl: "/#stage-section",
+    ctaUrl: "/#stage",
   },
   {
     slug: "virtual-shoe-prototype",
@@ -318,7 +318,7 @@ export const SEO_PAGES: SeoPageData[] = [
       },
     ],
     ctaText: "Explore Digital Prototypes",
-    ctaUrl: "/#stage-section",
+    ctaUrl: "/#stage",
   },
   {
     slug: "pbr-material-studio",
@@ -424,7 +424,7 @@ export const SEO_PAGES: SeoPageData[] = [
       },
     ],
     ctaText: "Adjust Studio Lighting",
-    ctaUrl: "/#stage-section",
+    ctaUrl: "/#stage",
   },
   {
     slug: "webgl-product-embed",
@@ -477,7 +477,7 @@ export const SEO_PAGES: SeoPageData[] = [
       },
     ],
     ctaText: "See Live Embed Stage",
-    ctaUrl: "/#stage-section",
+    ctaUrl: "/#stage",
   },
   {
     slug: "4k-3d-product-snapshot",
@@ -583,7 +583,7 @@ export const SEO_PAGES: SeoPageData[] = [
       },
     ],
     ctaText: "Test Converted Model",
-    ctaUrl: "/#stage-section",
+    ctaUrl: "/#stage",
   },
 ];
 

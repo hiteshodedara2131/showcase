@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
 import { BLOG_POSTS } from "@/data/blogs";
-import { BookOpen, Clock, Tag, ArrowRight, Sparkles } from "lucide-react";
+import { BookOpen, Clock, ArrowRight, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "3D WebGL & PBR Materials Blog — Showcase 3D Web Studio",
@@ -25,7 +25,7 @@ export default function BlogIndexPage() {
     <div className="min-h-screen bg-background text-on-surface flex flex-col font-sans">
       <Header />
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Hero Section */}
         <section className="py-14 sm:py-20 border-b border-border-hairline bg-surface-container-low/40 relative overflow-hidden">
           <div className="container-atelier relative z-10">
@@ -182,7 +182,7 @@ export default function BlogIndexPage() {
                 Launch 3D Studio Editor
               </Link>
               <Link
-                href="/#stage-section"
+                href="/#stage"
                 className="px-5 py-2.5 rounded-[3px] border border-border-hairline bg-surface hover:bg-surface-container text-on-surface transition-colors"
               >
                 View Live 3D Specimen Stage

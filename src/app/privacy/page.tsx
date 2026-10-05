@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
-import { ShieldCheck, Lock, Eye, Database } from "lucide-react";
+import { ShieldCheck, Lock } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — Showcase 3D Web Studio",
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-background text-on-surface flex flex-col font-sans">
       <Header />
 
-      <main className="flex-1 py-14 sm:py-20">
+      <main id="main-content" className="flex-1 py-14 sm:py-20">
         <div className="container-atelier max-w-3xl space-y-10">
           <div>
             <div className="flex items-center gap-2 mb-2">

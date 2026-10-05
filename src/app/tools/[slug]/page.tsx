@@ -102,7 +102,7 @@ export default async function ToolSeoPage({ params }: SeoPageProps) {
       />
       <Header />
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Hero Section */}
         <section className="py-14 sm:py-20 border-b border-border-hairline bg-surface-container-low/40 relative overflow-hidden">
           <div className="container-atelier max-w-4xl">
@@ -336,7 +336,7 @@ export default async function ToolSeoPage({ params }: SeoPageProps) {
                 Open 3D Studio Editor
               </Link>
               <Link
-                href="/#stage-section"
+                href="/#stage"
                 className="px-6 py-3 rounded-[3px] border border-border-hairline bg-surface hover:bg-surface-container text-on-surface transition-colors"
               >
                 Go to 3D Viewport Stage

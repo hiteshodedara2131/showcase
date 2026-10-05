@@ -1,15 +1,12 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
 import {
   Cpu,
   ShieldCheck,
   Zap,
-  Layers,
-  ArrowRight,
   Sparkles,
   CheckCircle,
 } from "lucide-react";
@@ -25,7 +22,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-background text-on-surface flex flex-col font-sans">
       <Header />
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Hero Section */}
         <section className="py-14 sm:py-20 border-b border-border-hairline bg-surface-container-low/40 relative overflow-hidden">
           <div className="container-atelier max-w-4xl">
@@ -144,7 +141,7 @@ export default function AboutPage() {
                 Launch 3D Studio Editor
               </Link>
               <Link
-                href="/#stage-section"
+                href="/#stage"
                 className="px-6 py-3 rounded-[3px] border border-border-hairline bg-surface hover:bg-surface-container text-on-surface transition-colors"
               >
                 View 3D Stage

@@ -13,14 +13,9 @@ import {
   Info,
   Sliders,
   PanelLeft,
-  PanelRight,
   Layers,
-  Check,
   Sparkles,
   X,
-  Palette,
-  Sun,
-  Camera,
 } from "lucide-react";
 import type {
   PartConfig,
@@ -222,6 +217,9 @@ export default function EditorStudioView({
 }: {
   projectId?: string;
 }) {
+  // projectId is accepted for future per-project state loading; today the
+  // editor always re-initializes from defaults.
+  void projectId;
   // Active state
   const [selectedPart, setSelectedPart] = useState("Outsole_Waffle");
   const [parts, setParts] = useState<Record<string, PartConfig>>(INITIAL_PARTS);
@@ -314,20 +312,34 @@ export default function EditorStudioView({
     triggerToast("Reset scene, materials & camera to default");
   };
 
-  // Export transparent PNG snapshot
-  const handleExportPng = useCallback(() => {
+  // Export transparent PNG snapshot (2× supersample for crisp output)
+  const handleExportPng = useCallback(async () => {
     try {
-      const canvas = document.querySelector("canvas");
-      if (canvas) {
-        const dataUrl = canvas.toDataURL("image/png");
-        const a = document.createElement("a");
-        a.href = dataUrl;
-        a.download = `3d-model-render-${activeCameraAngle.code}.png`;
-        a.click();
-        triggerToast("Render snapshot downloaded!");
-      } else {
+      const canvas = document.querySelector("canvas") as HTMLCanvasElement | null;
+      if (!canvas) {
         triggerToast("Canvas buffer unavailable for export.");
+        return;
       }
+      // Render an offscreen 2× copy if the live canvas is at 1× DPR
+      const targetWidth = canvas.width * 2;
+      const targetHeight = canvas.height * 2;
+      const off = document.createElement("canvas");
+      off.width = targetWidth;
+      off.height = targetHeight;
+      const ctx = off.getContext("2d");
+      if (!ctx) {
+        triggerToast("Could not allocate offscreen export buffer.");
+        return;
+      }
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+      const dataUrl = off.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `3d-model-render-${activeCameraAngle.code}@2x.png`;
+      a.click();
+      triggerToast(`Render snapshot downloaded (${targetWidth}×${targetHeight})`);
     } catch {
       triggerToast("Snapshot export failed.");
     }
@@ -535,45 +547,6 @@ export default function EditorStudioView({
             </button>
           </div>
 
-          {/* Specimen Model Switcher */}
-          <div className="p-3 border-b border-border-hairline">
-            <span className="font-mono text-[10px] text-outline uppercase tracking-widest font-semibold block mb-2">
-              Specimen Model
-            </span>
-            <div className="grid grid-cols-1 gap-1.5 font-mono text-[11px]">
-              {[
-                { name: "Waffle Runner V2", url: null, desc: "28-part Flagship" },
-                { name: "Air Athletic Sneaker", url: "/models/nike_shoe.glb", desc: "PBR Material Variants" },
-                { name: "Damaged Battle Helmet", url: "/models/helmet.glb", desc: "High-Metal Industrial" },
-              ].map((spec) => {
-                const isCurrent =
-                  (spec.url === null && customGlbUrl === null) ||
-                  (spec.url !== null && customGlbUrl === spec.url);
-                return (
-                  <button
-                    key={spec.name}
-                    onClick={() => {
-                      setCustomGlbUrl(spec.url);
-                      setCustomGlbName(spec.url ? spec.name : null);
-                      triggerToast(`Loaded specimen: ${spec.name}`);
-                    }}
-                    className={`flex items-center justify-between px-2.5 py-1.5 rounded-[2px] transition-colors cursor-pointer text-left border ${
-                      isCurrent
-                        ? "bg-surface-container border-primary text-on-surface font-semibold shadow-xs"
-                        : "bg-surface-container-low border-border-hairline text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
-                    }`}
-                  >
-                    <div>
-                      <p className="text-xs">{spec.name}</p>
-                      <p className="text-[9px] text-outline">{spec.desc}</p>
-                    </div>
-                    {isCurrent && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Model Parts List */}
           <div className="p-3 border-b border-border-hairline flex-1">
             <div className="flex items-center justify-between mb-2">
@@ -634,6 +607,21 @@ export default function EditorStudioView({
             </div>
           </div>
 
+          {/* Active specimen label — quick visual confirmation */}
+          <div className="p-3 border-b border-border-hairline">
+            <div className="flex items-center justify-between font-mono text-[11px]">
+              <div>
+                <span className="text-outline uppercase tracking-widest text-[9px] block mb-0.5">
+                  Active Specimen
+                </span>
+                <span className="text-on-surface font-semibold">
+                  {customGlbName ?? "Waffle Runner V2"}
+                </span>
+              </div>
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            </div>
+          </div>
+
           {/* Environment Presets */}
           <div className="p-3 border-b border-border-hairline">
             <span className="font-mono text-[10px] text-outline uppercase tracking-widest font-semibold mb-2 block">
@@ -672,7 +660,7 @@ export default function EditorStudioView({
             </div>
           </div>
 
-          {/* Custom File Upload Dropzone */}
+          {/* Specimen quick-load (consolidated — single source of truth) */}
           <div className="p-3 bg-surface-container-lowest">
             <label
               onClick={() => fileInputRef.current?.click()}
