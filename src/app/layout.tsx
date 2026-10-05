@@ -51,6 +51,7 @@ export const metadata: Metadata = {
     "High-fidelity real-time 3D product showcase and browser-based spatial studio. Bring your product. Make it impossible to overlook.",
   icons: {
     icon: [
+      { url: "/logo.png", type: "image/png", sizes: "any" },
       { url: "/favicon.ico", sizes: "any" },
       { url: "/favicon.png", type: "image/png", sizes: "32x32" },
       { url: "/icon.png", type: "image/png", sizes: "192x192" },
@@ -58,7 +59,7 @@ export const metadata: Metadata = {
     apple: [
       { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
     ],
-    shortcut: "/favicon.ico",
+    shortcut: "/logo.png",
   },
   openGraph: {
     title: "Showcase — 3D Web Studio & Kinetic Atelier",

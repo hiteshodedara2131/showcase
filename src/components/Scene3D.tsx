@@ -215,15 +215,12 @@ function FlagshipShoeModel({
   useEffect(() => {
     meshes.forEach((mesh) => {
       if (mesh.material instanceof THREE.MeshStandardMaterial) {
-        if (
-          mesh.name.includes("Toe_Box") ||
-          mesh.name.includes("Upper") ||
-          mesh.name.includes("Vamp") ||
-          mesh.name.includes("Foxing")
-        ) {
+        // Color applies to all non-eyelet materials (upper, vamp, foxing,
+        // toe box, sole, laces, tongue, etc.). Eyelets stay metallic silver.
+        const isEyelet = mesh.name.includes("Eyelet");
+        if (!isEyelet) {
           mesh.material.color = new THREE.Color(color);
         }
-        const isEyelet = mesh.name.includes("Eyelet");
         mesh.material.roughness = isEyelet ? 0.25 : Math.max(roughness, 0.55);
         mesh.material.metalness = isEyelet ? 0.9 : Math.min(metalness, 0.08);
         mesh.material.wireframe = wireframe;

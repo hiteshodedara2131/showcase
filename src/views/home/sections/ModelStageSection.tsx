@@ -74,13 +74,13 @@ const STAGE_CAMERA_ANGLES = [
 ];
 
 export const ModelStageSection: React.FC = () => {
-  // 3D Model & PBR Properties State - Natural leather & footwear defaults (dielectric, non-steel)
-  const [model, setModel] = useState<ModelType>("dior_jordan");
+  // Single specimen: Waffle Runner V2 (shoes.glb)
+  const model: ModelType = "shoe";
   const [color, setColor] = useState("#d9532f");
   const [wireframe, setWireframe] = useState(false);
   const [roughness, setRoughness] = useState(0.72);
   const [metalness, setMetalness] = useState(0.0);
-  const [autoRotate] = useState(true);
+  const [autoRotate, setAutoRotate] = useState(true);
   const [rotationSpeed] = useState(1);
 
   // Environment & Camera State
@@ -114,41 +114,73 @@ export const ModelStageSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Specimen Switcher & Environment Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 mb-3 bg-surface-container-low p-2 rounded-[4px] border border-border-hairline text-xs font-mono">
-        {/* Model Switcher Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          <span className="text-outline uppercase text-[10px] mr-1 hidden lg:inline">SPECIMEN:</span>
-          {[
-            { id: "dior_jordan" as const, label: "Air Jordan 1 Low Dior", tag: "LUXURY" },
-            { id: "vans_oldskool" as const, label: "Vans Old Skool", tag: "CLASSIC" },
-            { id: "shoe" as const, label: "Waffle Runner V2", tag: "STUDIO" },
-            { id: "nike_shoe" as const, label: "Nike Air Retro", tag: "" },
-            { id: "helmet" as const, label: "Tactical Helmet", tag: "" },
-            { id: "ring" as const, label: "Solitaire Ring", tag: "" },
-          ].map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setModel(m.id)}
-              className={`px-2.5 py-1 rounded-[2px] border text-xs whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5 ${
-                model === m.id
-                  ? "bg-primary text-white border-primary font-semibold shadow-xs"
-                  : "bg-surface-container border-border-hairline text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
-              }`}
-            >
-              <span>{m.label}</span>
-              {m.tag && (
-                <span className={`text-[8px] font-mono px-1 py-0.2 rounded-xs uppercase ${model === m.id ? "bg-white/20 text-white" : "bg-primary/10 text-primary"}`}>
-                  {m.tag}
-                </span>
-              )}
-            </button>
-          ))}
+      {/* Shader Control Navigation Bar */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 mb-3 bg-surface-container-lowest/60 backdrop-blur-sm p-2 rounded-[4px] border border-border-hairline text-xs font-mono shadow-xs">
+        {/* Specimen Identity + Quick Shader Toggles */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+          {/* Model Title Chip (fixed, single specimen) */}
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-[2px] border bg-primary text-white border-primary font-semibold shadow-xs shrink-0">
+            <span className="text-xs whitespace-nowrap">Waffle Runner V2</span>
+            <span className="text-[8px] font-mono px-1 py-0.5 rounded-xs uppercase bg-white/20 text-white tracking-wider">
+              Flagship
+            </span>
+          </div>
+
+          {/* Divider */}
+          <div className="h-5 w-px bg-border-hairline shrink-0" />
+
+          {/* Auto-Rotate Toggle */}
+          <button
+            onClick={() => setAutoRotate(!autoRotate)}
+            id="auto-rotate-toggle"
+            aria-label="Toggle Auto-Rotate Camera"
+            aria-pressed={autoRotate}
+            title="Toggle Auto-Rotate"
+            className={`px-2.5 py-1 rounded-[2px] border text-[11px] whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              autoRotate
+                ? "bg-surface-container-highest border-primary text-primary font-semibold"
+                : "bg-surface-container border-border-hairline text-outline hover:text-on-surface"
+            }`}
+          >
+            <span className="material-symbols-outlined text-[14px]">
+              {autoRotate ? "autorenew" : "pause"}
+            </span>
+            <span>Auto-Rotate</span>
+          </button>
+
+          {/* Wireframe Quick Toggle */}
+          <button
+            onClick={() => setWireframe(!wireframe)}
+            id="wireframe-quick-toggle"
+            aria-label="Toggle Wireframe Display"
+            aria-pressed={wireframe}
+            title="Toggle Wireframe"
+            className={`px-2.5 py-1 rounded-[2px] border text-[11px] whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              wireframe
+                ? "bg-surface-container-highest border-primary text-primary font-semibold"
+                : "bg-surface-container border-border-hairline text-outline hover:text-on-surface"
+            }`}
+          >
+            <span className="material-symbols-outlined text-[14px]">grid_4x4</span>
+            <span>Wireframe</span>
+          </button>
+
+          {/* Shader Sidebar Trigger */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            id="shader-sidebar-quick-toggle"
+            aria-label="Open Shader Controls"
+            title="Open Full Shader Controls"
+            className="px-2.5 py-1 rounded-[2px] border border-border-hairline text-outline hover:text-on-surface bg-surface-container text-[11px] whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Shader Lab</span>
+          </button>
         </div>
 
-        {/* Environment Selector Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto">
-          <span className="text-outline uppercase text-[10px] mr-1 hidden lg:inline">HDRI:</span>
+        {/* HDRI Environment Selector Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto shrink-0">
+          <span className="text-outline uppercase text-[10px] mr-1 hidden xl:inline tracking-widest">HDRI:</span>
           {ENVIRONMENT_OPTIONS.map((env) => (
             <button
               key={env.id}

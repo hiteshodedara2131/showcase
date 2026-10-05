@@ -30,14 +30,14 @@ export const Header: React.FC = () => {
             href="/"
             className="flex items-center gap-2.5 sm:gap-3 font-semibold tracking-tight text-on-surface text-sm uppercase group"
           >
-            <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-sm overflow-hidden bg-surface-container-high shrink-0 group-hover:scale-105 transition-transform">
+            <div className="relative w-7 h-7 sm:w-8 sm:h-8 shrink-0 group-hover:scale-105 transition-transform">
               <Image
                 src="/logo.png"
                 alt="Showcase 3D Web Studio Logo"
                 fill
                 priority
                 sizes="32px"
-                className="object-contain p-0.5"
+                className="object-contain"
               />
             </div>
             <div className="flex flex-col">

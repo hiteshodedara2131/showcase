@@ -10,13 +10,13 @@ export const Footer: React.FC = () => {
           {/* Brand Column */}
           <div className="sm:col-span-2 space-y-3.5">
             <Link href="/" className="inline-flex items-center gap-3">
-              <div className="relative w-8 h-8 rounded-sm overflow-hidden bg-surface-container-high shrink-0">
+              <div className="relative w-8 h-8 shrink-0">
                 <Image
                   src="/logo.png"
                   alt="Showcase 3D Web Studio Logo"
                   fill
                   sizes="32px"
-                  className="object-contain p-0.5"
+                  className="object-contain"
                 />
               </div>
               <div className="flex flex-col">
@@ -152,6 +152,16 @@ export const Footer: React.FC = () => {
         <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[11px]">
           <span>© 2026 Showcase 3D Web Studio. All rights reserved.</span>
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 font-mono text-outline">
+            <span className="text-outline">Built by{" "}
+              <a
+                href="https://www.styloshare.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-on-surface hover:text-primary transition-colors font-semibold underline-offset-2 hover:underline"
+              >
+                styloshare.com
+              </a>
+            </span>
             <Link href="/privacy" className="hover:text-on-surface transition-colors">
               Privacy
             </Link>
